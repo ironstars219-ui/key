@@ -34,6 +34,10 @@
 
 **[docs/architecture.md](docs/architecture.md)**
 
+Дизайн интерфейса (стиль, цвета, шрифты, кнопки, карточки, поля) и макеты пяти главных страниц:
+
+**[docs/design.md](docs/design.md)** · каркасы — [docs/wireframes/](docs/wireframes/) · экраны — [docs/screens/](docs/screens/)
+
 Главная структура будущего приложения:
 
 ```text
@@ -41,7 +45,10 @@ key-workshop-system/
 ├── README.md
 ├── .gitignore
 ├── docs/
-│   └── architecture.md
+│   ├── architecture.md
+│   ├── design.md               # правила дизайна
+│   ├── wireframes/             # каркасы страниц 01–05
+│   └── screens/                # готовые экраны 01–05
 ├── client/                     # React + Vite (разработка впереди)
 └── server/
     └── .env.example           # пример настроек без секретов
