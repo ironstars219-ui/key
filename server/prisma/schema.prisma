@@ -1,0 +1,136 @@
+// Схема БД «КлючУчёт» (см. docs/architecture.md, раздел 5)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum OrderStatus {
+  NEW
+  IN_PROGRESS
+  READY
+  ISSUED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum OrderEventType {
+  CREATED
+  ORDER_UPDATED
+  STATUS_CHANGED
+  PAYMENT_CHANGED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  fullName     String
+  login        String   @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+
+  createdOrders  Order[]      @relation("OrderCreatedBy")
+  assignedOrders Order[]      @relation("OrderAssignee")
+  paidOrders     Order[]      @relation("OrderPaidBy")
+  events         OrderEvent[]
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  phone     String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  orders Order[]
+
+  @@index([phone])
+}
+
+model Service {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  price     Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  items OrderItem[]
+}
+
+model Order {
+  id            Int           @id @default(autoincrement())
+  clientId      Int?
+  createdById   Int
+  assigneeId    Int?
+  dueDate       DateTime?     @db.Date
+  comment       String?
+  status        OrderStatus   @default(NEW)
+  paymentStatus PaymentStatus @default(UNPAID)
+  totalAmount   Int           @default(0)
+  paidAt        DateTime?     @db.Timestamptz(3)
+  paidById      Int?
+  issuedAt      DateTime?     @db.Timestamptz(3)
+  cancelReason  String?
+  createdAt     DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime      @updatedAt @db.Timestamptz(3)
+
+  client    Client?      @relation(fields: [clientId], references: [id])
+  createdBy User         @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  assignee  User?        @relation("OrderAssignee", fields: [assigneeId], references: [id])
+  paidBy    User?        @relation("OrderPaidBy", fields: [paidById], references: [id])
+  items     OrderItem[]
+  events    OrderEvent[]
+
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([dueDate])
+  @@index([paidAt])
+  @@index([createdAt])
+  @@index([clientId])
+}
+
+model OrderItem {
+  id                  Int    @id @default(autoincrement())
+  orderId             Int
+  serviceId           Int
+  serviceNameSnapshot String
+  unitPriceSnapshot   Int
+  quantity            Int
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+
+  @@unique([orderId, serviceId])
+}
+
+model OrderEvent {
+  id        Int            @id @default(autoincrement())
+  orderId   Int
+  actorId   Int
+  type      OrderEventType
+  oldValue  String?
+  newValue  String?
+  comment   String?
+  createdAt DateTime       @default(now()) @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id])
+  actor User  @relation(fields: [actorId], references: [id])
+
+  @@index([orderId, createdAt])
+}

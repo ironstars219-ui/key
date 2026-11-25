@@ -512,7 +512,7 @@ erDiagram
 - `GET` только читает; `POST` создаёт ресурс/выполняет действие; `PATCH` изменяет разрешённые поля.
 - Данные и роли проверяются **на сервере**. `createdById`, `actorId`, `paidAt`, `issuedAt`, `totalAmount`, `cancelReason` и снимки цен нельзя передавать из браузера как доверенные поля. `assigneeId` и `dueDate` принимаются только после серверной проверки. `Service.price` меняет только администратор.
 - Для списков доступны `page`, `pageSize`; допустим, по умолчанию 20 записей, максимум 100. Ответ: `items`, `total`, `page`, `pageSize`.
-- `GET /orders` принимает `search`, `status`, `paymentStatus`, `clientId`, `dateFrom`, `dateTo`, `page`, `pageSize`.
+- `GET /orders` принимает `search`, `status`, `paymentStatus`, `clientId`, `dateFrom`, `dateTo`, `page`, `pageSize`, а также `overdue=true` (только заказы, у которых срок прошёл; нужно для карточки «Срок прошёл» на главной). В каждом заказе сервер возвращает `isOverdue` (отметка, не статус) и `dueDate` строкой `ГГГГ-ММ-ДД`.
 - `GET /services` по умолчанию отдаёт активные; `includeInactive=true` разрешён только администратору.
 - `GET /stats/overview` принимает `from=YYYY-MM-DD`, `to=YYYY-MM-DD` (включительно по местному календарю).
 - Все защищённые запросы, кроме входа, содержат `Authorization: Bearer <token>`. Смена статуса и оплаты повторно проверяет текущие поля заказа на сервере; отдельный номер версии не передаётся.
