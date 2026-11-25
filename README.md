@@ -41,7 +41,7 @@
 Главная структура будущего приложения:
 
 ```text
-key-workshop-system/
+key/
 ├── README.md
 ├── .gitignore
 ├── docs/

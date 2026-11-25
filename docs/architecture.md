@@ -211,7 +211,7 @@ stateDiagram-v2
 
 **Правило быстрого заказа:** `clientId=null` — полностью корректное значение. Заказ без карточки клиента участвует в списке, статусах, журнале и статистике. Интерфейс показывает «Без карточки клиента», а не выдумывает имя или телефон. Поиск по данным клиента для него недоступен, пока сотрудник не привяжет клиента.
 
-**Срок и исполнитель:** `dueDate` можно не указывать. Если он задан, просрочка определяется на сервере по текущей дате и отображается в списке заказов. `assigneeId` также необязателен: это сотрудник, который выполняет работу; `createdById` хранит того, кто оформил заказ.
+**Срок и исполнитель:** `dueDate` можно не указывать; это только дата (`дд.мм.гггг`), время не хранится. Если он задан, просрочка определяется на сервере по текущей дате и отображается в списке заказов. `assigneeId` также необязателен: это сотрудник, который выполняет работу; `createdById` хранит того, кто оформил заказ.
 
 **Переделка:** если изготовленный ключ не подошёл, исходный заказ не переписывается. Сотрудник создаёт новый заказ с нулевой стоимостью и комментарием `Переделка по заказу №…`. Это сохраняет обе записи в истории.
 
@@ -289,7 +289,7 @@ stateDiagram-v2
 | `clientId` | `Int?` | Нет | FK → `Client.id`, `NULL` разрешён | Карточка клиента, если она оформлена; `null` — быстрый заказ |
 | `createdById` | `Int` | Да | FK → `User.id` | Кто оформил заказ |
 | `assigneeId` | `Int?` | Нет | FK → `User.id` | Кто выполняет работу; может быть `null` |
-| `dueDate` | `DateTime?` | Нет | индекс | Плановый срок готовности |
+| `dueDate` | `Date?` (`@db.Date`) | Нет | индекс | Плановый срок готовности, только дата без времени |
 | `comment` | `String?` | Нет | — | Комментарий к заказу, в том числе причина/ссылка на переделку |
 | `status` | `OrderStatus` (enum) | Да | индекс | `NEW`, `IN_PROGRESS`, `READY`, `ISSUED`, `CANCELLED` |
 | `paymentStatus` | `PaymentStatus` (enum) | Да | индекс | `UNPAID` / `PAID` |
@@ -398,7 +398,7 @@ erDiagram
         int clientId FK "nullable"
         int createdById FK
         int assigneeId FK "nullable"
-        datetime dueDate "nullable"
+        date dueDate "nullable"
         string comment "nullable"
         string cancelReason "nullable"
         enum status
@@ -686,7 +686,7 @@ erDiagram
 Ответ `201`:
 
 ```json
-{"id":105,"clientId":12,"createdById":2,"assigneeId":2,"dueDate":"2026-11-20T00:00:00.000Z","status":"NEW","paymentStatus":"UNPAID","totalAmount":3100,"items":[{"id":501,"serviceId":1,"serviceNameSnapshot":"Изготовление дубликата обычного ключа","unitPriceSnapshot":800,"quantity":2,"lineTotal":1600},{"id":502,"serviceId":4,"serviceNameSnapshot":"Программирование домофонного ключа","unitPriceSnapshot":1500,"quantity":1,"lineTotal":1500}]}
+{"id":105,"clientId":12,"createdById":2,"assigneeId":2,"dueDate":"2026-11-20","status":"NEW","paymentStatus":"UNPAID","totalAmount":3100,"items":[{"id":501,"serviceId":1,"serviceNameSnapshot":"Изготовление дубликата обычного ключа","unitPriceSnapshot":800,"quantity":2,"lineTotal":1600},{"id":502,"serviceId":4,"serviceNameSnapshot":"Программирование домофонного ключа","unitPriceSnapshot":1500,"quantity":1,"lineTotal":1500}]}
 ```
 
 Для **быстрого заказа** используем тот же `POST /api/orders`, но **без `clientId`** (или с `"clientId":null`):
@@ -901,7 +901,7 @@ flowchart LR
 Ниже **дерево имён**, а не исходный код. Названия файлов — ориентир для будущей реализации. Необязательные файлы можно добавлять по мере необходимости.
 
 ```text
-key-workshop-system/
+key/
 ├── README.md                      # как запустить и показать проект
 ├── .gitignore                     # исключить .env, node_modules и др.
 ├── docs/
@@ -1023,7 +1023,7 @@ key-workshop-system/
 
 ### 8.2. Как работать с Git и документацией
 
-- Корень `key-workshop-system` — один репозиторий, в нём `client`, `server`, `docs`.
+- Корень `key` — один репозиторий, в нём `client`, `server`, `docs`.
 - `docs/architecture.md` редактируется при изменении согласованных правил.
 - `.env`, зависимости (`node_modules`), временные файлы и локальные секреты не добавляются в Git.
 - `README.md` в корне уже объясняет назначение проекта, структуру, состояние реализации и порядок будущего запуска.
