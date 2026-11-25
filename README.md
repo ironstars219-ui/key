@@ -47,8 +47,8 @@ key-workshop-system/
 ├── docs/
 │   ├── architecture.md
 │   ├── design.md               # правила дизайна
-│   ├── wireframes/             # каркасы страниц 01–05
-│   └── screens/                # готовые экраны 01–05
+│   ├── wireframes/             # каркасы страниц 01–06
+│   └── screens/                # готовые экраны 01–06
 ├── client/                     # React + Vite (разработка впереди)
 └── server/
     └── .env.example           # пример настроек без секретов
